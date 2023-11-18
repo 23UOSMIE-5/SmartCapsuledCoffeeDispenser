@@ -1,13 +1,13 @@
 import RPi.GPIO as GPIO
-from GPIOManager import GPIOManager
+from GPIOManager import GpioManager
 
-class Led(GPIOManager):
+class Led(GpioManager):
 
     __led = None 
 
     def __init__(self, led):
         super().__init__()
-        __led =  led
+        self.__led =  led
         self.__setup()
 
     def __setup(self):
@@ -22,3 +22,6 @@ class Led(GPIOManager):
         GPIO.output(pin, False)
 
 
+if __name__ =='__main__' : 
+    led = Led(3)
+    print("helloo")

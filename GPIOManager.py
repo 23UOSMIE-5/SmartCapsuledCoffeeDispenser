@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 from abc import abstractmethod
 
-class GPIOManager :
+class GpioManager :
 
     def __init__(self):
         GPIO.setmode(GPIO.BCM)

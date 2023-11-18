@@ -1,10 +1,10 @@
-from GPIOManager import GPIOManager
+from GPIOManager import GpioManager
 import RPi.GPIO as GPIO
 from hx711py import hx711
 
 
 
-class Loadcell(GPIOManager):
+class Loadcell(GpioManager):
 
     __hx : hx711.HX711 = None
     __lineGradient = None
@@ -32,3 +32,8 @@ class Loadcell(GPIOManager):
     def readGrams_avg(self, times=16):
         x = self.__hx.read_average(times=16)
         return x* self.__lineGradient + self.__error
+
+
+if __name__ =='__main__' : 
+    lc = Loadcell(5, 6, 128, -0.025 , 2200)
+    print("helloo")
