@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">interface</string>
+    <string name="title_one">홈</string>
+    <string name="title_two">재고 확인</string>
+    <string name="title_three">재고 관리</string>
+
+    <string name="Coffee1">커피 A: 12개</string>
+    <string name="Coffee2">커피 B: 7개</string>
+    <string name="Coffee3">커피 C: 5개</string>
+
+    <string name="NickName1">연구실</string>
+    <string name="UsingID1">happy</string>
+    <string name="LineNumber1">3</string>
+
+    <string name="Coffee1_1">커피 A</string>
+    <string name="Coffee_stock_1_1">12 개</string>
+    <string name="Coffee1_2">커피 B</string>
+    <string name="Coffee_stock_1_2">5 개</string>
+    <string name="Coffee1_3">커피 C</string>
+    <string name="Coffee_stock_1_3">7 개</string>
+
+    <string name="NickName2">집</string>
+    <string name="UsingID2">jong</string>
+    <string name="LineNumber2">2</string>
+
+    <string name="Coffee2_1">커피 D</string>
+    <string name="Coffee_stock_2_1">12 개</string>
+    <string name="Coffee2_2">커피 E</string>
+    <string name="Coffee_stock_2_2">12 개</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
