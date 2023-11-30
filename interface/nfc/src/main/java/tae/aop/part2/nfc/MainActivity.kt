@@ -18,6 +18,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.provider.Settings
+import android.util.Log
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.firestore.FirebaseFirestore
 import tae.aop.part2.nfc.record.ParsedNdefRecord
@@ -84,6 +85,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun resolveIntent(intent: Intent) {
+        var IDdecString: String = "myhome383"
         val validActions = listOf(
             NfcAdapter.ACTION_TAG_DISCOVERED,
             NfcAdapter.ACTION_TECH_DISCOVERED,
@@ -100,21 +102,29 @@ class MainActivity : AppCompatActivity() {
             } else {
                 // Unknown tag type
                 val empty = ByteArray(0)
+                Log.d("NFCinfo", empty.toString() )
                 val id = intent.getByteArrayExtra(NfcAdapter.EXTRA_ID)
+                IDdecString = if (id != null) toDec(id).toString() else "NULL"
+                Log.d("NFCinfo", IDdecString )
                 val tag = intent.parcelable<Tag>(NfcAdapter.EXTRA_TAG) ?: return
+                Log.d("NFCinfo", tag.toString() )
                 val payload = dumpTagData(tag).toByteArray()
+                Log.d("NFCinfo", payload.toString() )
                 val record = NdefRecord(NdefRecord.TNF_UNKNOWN, empty, id, payload)
+                Log.d("NFCinfo", record.id.toString() )
                 val msg = NdefMessage(arrayOf(record))
+                Log.d("NFCinfo", msg.toString() )
                 messages.add(msg)
+
             }
+
             // Setup the views
             buildTagViews(messages)
             var db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-            var deviceSerialNumber:String = "myhome383" // TODO NFC 고유값에 해당하는 문서를 변경하도록 구현
             var usingId:String = "mylandy2" // TODO 회원가입 기능 추가 후 해당하는 ID 갱신하도록 수정
 
-            db.collection("SerialNumber").document(deviceSerialNumber).update("UsingID", usingId)
+            db.collection("SerialNumber").document(IDdecString).update("UsingID", usingId)
         }
     }
 
