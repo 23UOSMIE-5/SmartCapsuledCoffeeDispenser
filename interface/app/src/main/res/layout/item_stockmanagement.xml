@@ -3,56 +3,61 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp">
+
         <TextView
             android:id="@+id/itemIndex"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="1번"
             android:textSize="35sp"
-            android:textStyle="bold"
-            />
+            android:textStyle="bold" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <Button
                 android:id="@+id/expandButton"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="40dp"
-                android:text="핫초코"
-                android:textColor="@color/white"
+                android:background="@drawable/rounded_background"
                 android:onClick="toggleVisibility"
-                android:background="@drawable/rounded_background"/>
+                android:text="핫초코"
+                android:textColor="@color/white" />
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
                 <Button
                     android:id="@+id/numberButton"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="40dp"
                     android:layout_marginTop="5dp"
-                    android:text="120"
-                    android:textColor="@color/white"
+                    android:background="@drawable/rounded_background"
                     android:onClick="toggleVisibility"
-                    android:background="@drawable/rounded_background"/>
+                    android:text="120"
+                    android:textColor="@color/white" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="EA"
-                    android:textStyle="bold"
-                    android:textSize="36sp"
-                    android:layout_marginTop="5dp"
                     android:layout_marginStart="15dp"
-                    />
+                    android:layout_marginTop="5dp"
+                    android:text="EA"
+                    android:textSize="36sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

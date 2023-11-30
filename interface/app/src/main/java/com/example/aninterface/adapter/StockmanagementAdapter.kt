@@ -8,8 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.core.content.ContentProviderCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.RecyclerView
 import com.example.aninterface.R
 import com.example.aninterface.model.CoffeeDatabase
@@ -19,7 +17,11 @@ import com.google.android.material.textfield.TextInputEditText
 
 // 재고 확인 리사이클 뷰에 대한 어댑터
 
-class StockmanagementAdapter(private val context: Context, private val dataset: List<DeviceInfo>, private val dataset2: CoffeeDatabase): RecyclerView.Adapter<StockmanagementAdapter.ItemViewHolder>() {
+class StockmanagementAdapter(
+    private val context: Context,
+    private val dataset: List<DeviceInfo>,
+    private val dataset2: CoffeeDatabase
+) : RecyclerView.Adapter<StockmanagementAdapter.ItemViewHolder>() {
     // 리사이클 뷰의 item 구성요소의 아이디를 받아오는 클래스
     class ItemViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         val itemIndex: TextView = view.findViewById(R.id.itemIndex)
@@ -28,7 +30,8 @@ class StockmanagementAdapter(private val context: Context, private val dataset: 
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-        val adapterLayout = LayoutInflater.from(parent.context).inflate(R.layout.item_stockmanagement, parent, false)
+        val adapterLayout = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_stockmanagement, parent, false)
 
         return ItemViewHolder(adapterLayout)
     }
@@ -36,13 +39,14 @@ class StockmanagementAdapter(private val context: Context, private val dataset: 
     // 리사이클 뷰의 내용을 데이터 주소 기반으로 수정 (데이터셋의 인덱스 1값을 기준으로 재고 관리 내용 출력)
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = dataset[1]
-        holder.itemIndex.text = "${position+1}번"
-        holder.Button1.text = item.coffeeData["coffee${position+1}"]?.coffeeName
-        holder.Button2.text = item.coffeeData["coffee${position+1}"]?.coffeeStock
+        holder.itemIndex.text = "${position + 1}번"
+        holder.Button1.text = item.coffeeData["${position + 1}"]?.coffeeName
+        holder.Button2.text = item.coffeeData["${position + 1}"]?.coffeeStock
 
         // 커피 종류 버튼을 누를 때 나오는 커피 종류 리스트
         val options = (1..dataset2.coffeeIndex.size).map { index ->
-            dataset2.coffeeIndex[index.toString()]?.coffeeName}
+            dataset2.coffeeIndex[index.toString()]?.coffeeName
+        }
 
         // 커피 종류 버튼을 눌렀을 때 커피 종류 리스트 중 선택한 내용을 업데이트 하는 클릭 함수
         holder.Button1.setOnClickListener {
@@ -57,8 +61,9 @@ class StockmanagementAdapter(private val context: Context, private val dataset: 
         }
 
     }
+
     // recycleview의 item 개수를 결정하는 함수 (데이터셋의 인덱스 1값의 linecount 만큼 item을 출력 : 기기 하나에 대한 재고 관리 item이기 때문)
-    override fun getItemCount()=dataset[1].lineCount.toInt()
+    override fun getItemCount() = dataset[1].lineCount.toInt()
 }
 
 private fun showOptionsDialog(
@@ -74,6 +79,7 @@ private fun showOptionsDialog(
         }
     builder.show()
 }
+
 private fun showNumberPadDialog(numberButton: Button) {
     val inputEditText = TextInputEditText(numberButton.context)
 

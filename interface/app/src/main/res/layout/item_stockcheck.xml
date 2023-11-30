@@ -3,12 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_background"
         android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@drawable/rounded_background">
+        android:padding="16dp">
 
         <ImageView
             android:id="@+id/item_image"
@@ -26,37 +27,37 @@
 
             <TextView
                 android:id="@+id/deviceName"
-                android:text="집1"
                 android:layout_width="match_parent"
-                android:textColor="@color/black"
                 android:layout_height="wrap_content"
+                android:text="집1"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/item_1"
-                android:text="커피A : 2 개"
                 android:layout_width="match_parent"
-                android:textColor="@color/black"
                 android:layout_height="wrap_content"
+                android:text="커피A : 2 개"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/item_2"
-                android:text="커피A : 2 개"
                 android:layout_width="match_parent"
-                android:textColor="@color/black"
                 android:layout_height="wrap_content"
+                android:text="커피A : 2 개"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/item_3"
-                android:text="커피A : 2 개"
                 android:layout_width="match_parent"
-                android:textColor="@color/black"
                 android:layout_height="wrap_content"
+                android:text="커피A : 2 개"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>

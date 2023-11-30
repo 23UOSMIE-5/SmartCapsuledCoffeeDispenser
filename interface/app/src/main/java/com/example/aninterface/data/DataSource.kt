@@ -4,32 +4,25 @@ import com.example.aninterface.model.*
 
 
 // 기기 데이터셋 1
-val coffee1 = CoffeeData("아메리카노", "4")
-val coffee2 = CoffeeData("카페라떼", "7")
-
 val device1Info = DeviceInfo(
     deviceName = "집",
     usingId = "happy",
     lineCount = "2",
     coffeeData = mapOf(
-        "coffee1" to coffee1,
-        "coffee2" to coffee2
+        "1" to CoffeeData("아메리카노", "4"),
+        "2" to CoffeeData("카페라떼", "7")
     )
 )
 
 // 기기 데이터셋 2
-val coffee3 = CoffeeData("카푸치노", "12")
-val coffee4 = CoffeeData("핫초코", "2")
-val coffee5 = CoffeeData("아메리카노", "5")
-
 val device2Info = DeviceInfo(
     deviceName = "회사",
     usingId = "happy",
     lineCount = "3",
     coffeeData = mapOf(
-        "coffee1" to coffee3,
-        "coffee2" to coffee4,
-        "coffee3" to coffee5
+        "1" to CoffeeData("카푸치노", "12"),
+        "2" to CoffeeData("핫초코", "2"),
+        "3" to CoffeeData("아메리카노", "5")
     )
 )
 
@@ -69,7 +62,7 @@ val coffeeDatabase = CoffeeDatabase(
 val day1 = DailyStatics("2023/11/20", "3", "44", "50")
 val day2 = DailyStatics("2023/11/19", "4", "60", "70")
 val day3 = DailyStatics("2023/11/18", "2", "24", "40")
-val day4 = DailyStatics("2023/11/17", "1", "18", "10")
+val day4 = DailyStatics("2023/11/17", "1", "19", "10")
 
 val UserDatabase = UserStatics(
     userID = mapOf(
@@ -79,3 +72,4 @@ val UserDatabase = UserStatics(
         "4" to day4
     )
 )
+

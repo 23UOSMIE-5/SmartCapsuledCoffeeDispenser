@@ -10,22 +10,22 @@
         android:id="@+id/title_stockCheck"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
+        android:layout_gravity="center"
+        android:layout_marginBottom="300dp"
         android:gravity="center"
         android:text="재고 확인"
-        android:textStyle="bold"
-        android:layout_marginBottom="300dp"
+        android:textColor="@color/black"
         android:textSize="30sp"
-        android:layout_gravity="center"/>
+        android:textStyle="bold" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/StockRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="150dp"
         android:layout_marginStart="30dp"
+        android:layout_marginTop="150dp"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="30dp"
         android:orientation="vertical"
-        app:layoutManager="LinearLayoutManager"/>
+        app:layoutManager="LinearLayoutManager" />
 </FrameLayout>
