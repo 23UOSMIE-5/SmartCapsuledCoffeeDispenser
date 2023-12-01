@@ -55,15 +55,22 @@ class HomeFragment : Fragment() {
         CoroutineScope(Dispatchers.Main).launch {
             val userStatics = DataSource().loadUserInfo("mylandy2") ?: UserStatics(mapOf()) // 널일 경우 대체 값
             UserDataset = userStatics
+
+            val capsule: TextView = view.findViewById(R.id.capsule)
+            val caffeine: TextView = view.findViewById(R.id.caffeine_n)
+            val calorie: TextView = view.findViewById(R.id.calorie_n)
+
+            val currentDate = LocalDate.now()
+            val formattedDate = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            capsule.text = (UserDataset.userID[formattedDate]?.capsule ?: "0") + " 개"
+            caffeine.text = (UserDataset.userID[formattedDate]?.caffeine ?: "0") + " mg"
+            calorie.text = (UserDataset.userID[formattedDate]?.calorie ?: "0") + " kcal"
+
+            // 로그 찍기
+            Log.d("DataCheck", "Capsule Text: ${capsule.text}")
+            Log.d("DataCheck", "Caffeine Text: ${caffeine.text}")
+            Log.d("DataCheck", "Calorie Text: ${calorie.text}")
         }
-
-        val capsule: TextView = view.findViewById(R.id.capsule)
-        val caffeine: TextView = view.findViewById(R.id.caffeine_n)
-        val calorie: TextView = view.findViewById(R.id.calorie_n)
-
-        capsule.text = UserDataset.userID["1"]?.capsule + " 개"
-        caffeine.text = UserDataset.userID["1"]?.caffeine + " mg"
-        calorie.text = UserDataset.userID["1"]?.calorie + " kcal"
     }
 
     override fun onDestroyView() {
