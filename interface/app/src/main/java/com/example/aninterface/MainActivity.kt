@@ -8,6 +8,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.aninterface.databinding.ActivityMainBinding
+import com.jakewharton.threetenabp.AndroidThreeTen
 
 class MainActivity : AppCompatActivity() {
 
@@ -15,6 +16,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AndroidThreeTen.init(this)
 
         // 액션바 숨기기
         supportActionBar?.hide()

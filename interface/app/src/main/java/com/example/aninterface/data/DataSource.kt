@@ -1,7 +1,11 @@
 package com.example.aninterface.data
 
+import android.util.Log
 import com.example.aninterface.model.*
-
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 // 기기 데이터셋 1
 val device1Info = DeviceInfo(
@@ -37,8 +41,10 @@ class DataSource {
     fun loadCoffeeInfo(): CoffeeDatabase {
         return coffeeDatabase
     }
-    fun loadUserInfo(): UserStatics {
-        return UserDatabase
+    suspend fun loadUserInfo(usingID: String): UserStatics? {
+        return withContext(Dispatchers.IO) {
+            fetchDailyStatics(usingID)
+        }
     }
 }
 
@@ -57,19 +63,32 @@ val coffeeDatabase = CoffeeDatabase(
     )
 )
 
-// 사용자 섭취 현황 데이터셋
+suspend fun fetchDailyStatics(usingID: String): UserStatics? {
+    return try {
+        val db = FirebaseFirestore.getInstance()
+        val dailyStaticsRef = db.collection("UserStatics").document(usingID).collection("DailyStatics")
 
-val day1 = DailyStatics("2023/11/20", "3", "44", "50")
-val day2 = DailyStatics("2023/11/19", "4", "60", "70")
-val day3 = DailyStatics("2023/11/18", "2", "24", "40")
-val day4 = DailyStatics("2023/11/17", "1", "19", "10")
+        val documents = dailyStaticsRef.get().await()
+        val dailyStaticsMap = hashMapOf<String, DailyStatics>()
 
-val UserDatabase = UserStatics(
-    userID = mapOf(
-        "1" to day1,
-        "2" to day2,
-        "3" to day3,
-        "4" to day4
-    )
-)
+        for (document in documents) {
+            val date = document.id
+            val capsule = document.getLong("Capsules")?.toString() ?: "0"
+            val caffeine = document.getLong("Caffeine")?.toString() ?: "0"
+            val calorie = document.getLong("Calories")?.toString() ?: "0"
 
+            val dailyStatics = DailyStatics(date, capsule, caffeine, calorie)
+            dailyStaticsMap[date] = dailyStatics
+
+            // 각 문서의 처리 성공 로그
+            Log.d("FirebaseSuccess", "Document processed: $date, Capsules: $capsule, Caffeine: $caffeine, Calories: $calorie")
+        }
+        // Firestore 접근이 성공적으로 완료되었음을 나타내는 로그
+        Log.d("FirebaseSuccess", "All documents fetched successfully")
+
+        UserStatics(dailyStaticsMap)
+    } catch (exception: Exception) {
+        Log.e("FirebaseError", "Error fetching documents", exception)
+        null
+    }
+}

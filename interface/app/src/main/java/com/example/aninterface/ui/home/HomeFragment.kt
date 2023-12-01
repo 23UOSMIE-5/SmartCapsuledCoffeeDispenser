@@ -3,6 +3,7 @@ package com.example.aninterface.ui.home
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,12 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.jakewharton.threetenabp.AndroidThreeTen
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.threeten.bp.LocalDate
+import org.threeten.bp.format.DateTimeFormatter
 
 class HomeFragment : Fragment() {
 
@@ -43,7 +50,12 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // recycle view의 item으로 사용할 dataset 불러오기
-        val UserDataset = DataSource().loadUserInfo()
+        var UserDataset: UserStatics = UserStatics(mapOf()) // 빈 맵으로 초기화
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val userStatics = DataSource().loadUserInfo("mylandy2") ?: UserStatics(mapOf()) // 널일 경우 대체 값
+            UserDataset = userStatics
+        }
 
         val capsule: TextView = view.findViewById(R.id.capsule)
         val caffeine: TextView = view.findViewById(R.id.caffeine_n)
@@ -115,60 +127,71 @@ class HomeFragment : Fragment() {
         // Zoom In / Out 가능 여부 설정
         barChart.setScaleEnabled(false)
 
-        val UserDataset = DataSource().loadUserInfo()
+        var usingID = "mylandy2" // TODO: usingID를 실제 값으로 변경
 
-        val (avgCapsule, avgCaffeine, avgCalorie) = calculateAverageForRange(1, 3, UserDataset)
+        var UserDataset: UserStatics = UserStatics(mapOf()) // 빈 맵으로 초기화
 
-        val todayValues = floatArrayOf(
-            UserDataset.userID["1"]?.capsule?.toFloat() ?: 0f,
-            UserDataset.userID["1"]?.caffeine?.toFloat() ?: 0f,
-            UserDataset.userID["1"]?.calorie?.toFloat() ?: 0f
-        ) // 오늘의 커피 캡슐 개수, 카페인 섭취량, 칼로리 섭취량
+        CoroutineScope(Dispatchers.Main).launch {
+            val userStatics = DataSource().loadUserInfo(usingID) ?: UserStatics(mapOf()) // 널일 경우 대체 값
+            UserDataset = userStatics
 
-        val weeklyAverageValues = floatArrayOf(
-            avgCapsule,
-            avgCaffeine,
-            avgCalorie
-        ) // 일주일 평균의 커피 캡슐 개수, 카페인 섭취량, 칼로리 섭취량
+            val (avgCapsule, avgCaffeine, avgCalorie) = calculateAverageForLastWeek(UserDataset)
 
-        val barWidth = 0.35f // 바 너비
+            val currentDate = LocalDate.now()
+            val formattedDate = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            val todayValues = floatArrayOf(
+                UserDataset.userID[formattedDate]?.capsule?.toFloat() ?: 0f,
+                UserDataset.userID[formattedDate]?.caffeine?.toFloat() ?: 0f,
+                UserDataset.userID[formattedDate]?.calorie?.toFloat() ?: 0f
+            ) // 오늘의 커피 캡슐 개수, 카페인 섭취량, 칼로리 섭취량
 
-        // 오늘 데이터
-        val todayEntries = ArrayList<BarEntry>()
-        for (i in todayValues.indices) {
-            todayEntries.add(BarEntry(i.toFloat() - barWidth / 2, todayValues[i]))
+            val weeklyAverageValues = floatArrayOf(
+                avgCapsule,
+                avgCaffeine,
+                avgCalorie
+            ) // 일주일 평균의 커피 캡슐 개수, 카페인 섭취량, 칼로리 섭취량
+
+            val barWidth = 0.35f // 바 너비
+
+            // 오늘 데이터
+            val todayEntries = ArrayList<BarEntry>()
+            for (i in todayValues.indices) {
+                todayEntries.add(BarEntry(i.toFloat() - barWidth / 2, todayValues[i]))
+            }
+
+            // 일주일 평균 데이터
+            val weeklyAverageEntries = ArrayList<BarEntry>()
+            for (i in weeklyAverageValues.indices) {
+                weeklyAverageEntries.add(BarEntry(i.toFloat() + barWidth / 2, weeklyAverageValues[i]))
+            }
+
+            // 데이터셋 생성
+            val todayDataSet = BarDataSet(todayEntries, "오늘")
+            todayDataSet.color = Color.rgb(138, 219, 83)
+            todayDataSet.valueTextSize = 18f
+            todayDataSet.valueTypeface = Typeface.DEFAULT_BOLD
+
+            val weeklyAverageDataSet = BarDataSet(weeklyAverageEntries, "일주일 평균")
+            weeklyAverageDataSet.color = Color.rgb(93, 194, 119)
+            weeklyAverageDataSet.valueTextSize = 18f
+            weeklyAverageDataSet.valueTypeface = Typeface.DEFAULT_BOLD
+
+            // 데이터셋 리스트에 추가
+            val dataSetList = listOf(todayDataSet, weeklyAverageDataSet)
+
+            // BarData에 데이터셋 리스트 설정
+            val data = BarData(dataSetList)
+            data.barWidth = barWidth // 바 너비 설정
+            barChart.data = data
+
+            val xAxis = barChart.xAxis
+            xAxis.valueFormatter = MyXAxisValueFormatter(listOf("커피 캡슐", "카페인", "칼로리"))
+
+            barChart.groupBars(-0.5f, 0.1f, 0.1f) // 그룹 바 설정
+            barChart.invalidate()
         }
 
-        // 일주일 평균 데이터
-        val weeklyAverageEntries = ArrayList<BarEntry>()
-        for (i in weeklyAverageValues.indices) {
-            weeklyAverageEntries.add(BarEntry(i.toFloat() + barWidth / 2, weeklyAverageValues[i]))
-        }
 
-        // 데이터셋 생성
-        val todayDataSet = BarDataSet(todayEntries, "오늘")
-        todayDataSet.color = Color.rgb(138, 219, 83)
-        todayDataSet.valueTextSize = 18f
-        todayDataSet.valueTypeface = Typeface.DEFAULT_BOLD
-
-        val weeklyAverageDataSet = BarDataSet(weeklyAverageEntries, "일주일 평균")
-        weeklyAverageDataSet.color = Color.rgb(93, 194, 119)
-        weeklyAverageDataSet.valueTextSize = 18f
-        weeklyAverageDataSet.valueTypeface = Typeface.DEFAULT_BOLD
-
-        // 데이터셋 리스트에 추가
-        val dataSetList = listOf(todayDataSet, weeklyAverageDataSet)
-
-        // BarData에 데이터셋 리스트 설정
-        val data = BarData(dataSetList)
-        data.barWidth = barWidth // 바 너비 설정
-        barChart.data = data
-
-        val xAxis = barChart.xAxis
-        xAxis.valueFormatter = MyXAxisValueFormatter(listOf("커피 캡슐", "카페인", "칼로리"))
-
-        barChart.groupBars(-0.5f, 0.1f, 0.1f) // 그룹 바 설정
-        barChart.invalidate()
     }
 
     class MyXAxisValueFormatter(private val labels: List<String>) : ValueFormatter() {
@@ -183,18 +206,18 @@ class HomeFragment : Fragment() {
     }
 
     // 평균 구하는 함수
-    private fun calculateAverageForRange(
-        startIndex: Int,
-        endIndex: Int,
-        userDataset: UserStatics
-    ): Triple<Float, Float, Float> {
+    private fun calculateAverageForLastWeek(userDataset: UserStatics): Triple<Float, Float, Float> {
         var sumCapsule = 0f
         var sumCaffeine = 0f
         var sumCalorie = 0f
 
-        val valuesInRange = userDataset.userID.values.filterIndexed { index, _ ->
-            index >= startIndex && index <= endIndex
-        }
+        val endDate = LocalDate.now()
+        val startDate = endDate.minusDays(6) // 일주일 전 날짜
+
+        val valuesInRange = userDataset.userID.filterKeys { date ->
+            val dateAsLocalDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            !dateAsLocalDate.isBefore(startDate) && !dateAsLocalDate.isAfter(endDate)
+        }.values
 
         valuesInRange.forEach { dailyStatics ->
             sumCapsule += dailyStatics.capsule.toFloat()
@@ -202,13 +225,15 @@ class HomeFragment : Fragment() {
             sumCalorie += dailyStatics.calorie.toFloat()
         }
 
-        // 각 섭취 항목을 날짜 수로 나눠서 평균 계산
-        val numOfDays = valuesInRange.size
-        val avgCapsule = sumCapsule / numOfDays
-        val avgCaffeine = sumCaffeine / numOfDays
-        val avgCalorie = sumCalorie / numOfDays
+        Log.d("CalculateAverage", "Sum of Capsules: $sumCapsule")
+        Log.d("CalculateAverage", "Sum of Caffeine: $sumCaffeine")
+        Log.d("CalculateAverage", "Sum of Calories: $sumCalorie")
 
-        // Triple로 세 개의 값을 반환
+        val numOfDays = valuesInRange.size
+        val avgCapsule = if (numOfDays > 0) sumCapsule / numOfDays else 0f
+        val avgCaffeine = if (numOfDays > 0) sumCaffeine / numOfDays else 0f
+        val avgCalorie = if (numOfDays > 0) sumCalorie / numOfDays else 0f
+
         return Triple(avgCapsule, avgCaffeine, avgCalorie)
     }
 
