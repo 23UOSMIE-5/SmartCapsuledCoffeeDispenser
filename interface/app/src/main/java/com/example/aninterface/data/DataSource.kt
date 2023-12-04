@@ -3,7 +3,10 @@ package com.example.aninterface.data
 import android.util.Log
 import com.example.aninterface.model.*
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
@@ -32,11 +35,8 @@ val device2Info = DeviceInfo(
 
 // 기기 데이터셋 1, 2 통합
 class DataSource {
-    fun loadstock(): List<DeviceInfo> {
-        return listOf(
-            device1Info,
-            device2Info
-        )
+    suspend fun loadstock(usingID: String): List<DeviceInfo> {
+        return loadStockFromFirebase(usingID)
     }
     fun loadCoffeeInfo(): CoffeeDatabase {
         return coffeeDatabase
@@ -90,5 +90,48 @@ suspend fun fetchDailyStatics(usingID: String): UserStatics? {
     } catch (exception: Exception) {
         Log.e("FirebaseError", "Error fetching documents", exception)
         null
+    }
+}
+
+suspend fun loadStockFromFirebase(usingId: String): List<DeviceInfo> {
+    return withContext(Dispatchers.IO) {
+        val db = FirebaseFirestore.getInstance()
+        val lastUsedDevicesRef = db.collection("UserStatics").document(usingId).collection("lastUsedDevices")
+        val serialNumberRef = db.collection("SerialNumber")
+
+        val deviceInfoDeferred = mutableListOf<Deferred<DeviceInfo>>()
+
+        try {
+            val lastUsedDevices = lastUsedDevicesRef.get().await()
+            for (deviceDocument in lastUsedDevices) {
+                deviceInfoDeferred.add(async {
+                    val deviceName = deviceDocument.getString("deviceName") ?: ""
+                    val serialNumber = deviceDocument.id
+                    Log.d("serialNumber", "serialNumber is $serialNumber")
+
+                    val serialDocument = serialNumberRef.document(serialNumber).get().await()
+                    val coffeeDataMap = mutableMapOf<String, CoffeeData>()
+
+                    for (i in 1..3) {  // TODO: 라인 갯수를 현재 3개로 지정했는데, 3개 이외일 때도 무리없이 동작하도록 수정
+                        val coffeeName = serialDocument.getString("#${i} Coffee") ?: ""
+                        val coffeeStock = serialDocument.getLong("#${i} Coffee Stock")?.toString() ?: "0"
+                        coffeeDataMap[i.toString()] = CoffeeData(coffeeName, coffeeStock)
+
+                        Log.d("FirebaseSuccess", "Line processed- Coffee:$coffeeName, Stock:$coffeeStock")
+                    }
+
+                    DeviceInfo(
+                        deviceName = deviceName,
+                        usingId = usingId,
+                        lineCount = "3",
+                        coffeeData = coffeeDataMap
+                    )
+                })
+            }
+        } catch (e: Exception) {
+            Log.e("FirebaseError", "Error fetching documents", e)
+        }
+
+        deviceInfoDeferred.awaitAll()
     }
 }

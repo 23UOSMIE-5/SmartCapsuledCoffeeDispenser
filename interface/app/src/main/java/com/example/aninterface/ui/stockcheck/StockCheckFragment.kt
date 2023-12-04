@@ -9,6 +9,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.aninterface.R
 import com.example.aninterface.adapter.StockcheckItemAdapter
 import com.example.aninterface.data.DataSource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class StockCheckFragment : Fragment() {
     override fun onCreateView(
@@ -22,12 +25,16 @@ class StockCheckFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // recycle view의 item으로 사용할 dataset 불러오기
-        val stockDataset = DataSource().loadstock()
+        CoroutineScope(Dispatchers.Main).launch {
+            val stockDataset = DataSource().loadstock("mylandy2")
 
-        val recyclerView = view.findViewById<RecyclerView>(R.id.StockRecyclerView)
+            // stockDataset을 사용하여 UI 업데이트 등의 작업을 수행
+            val recyclerView = view.findViewById<RecyclerView>(R.id.StockRecyclerView)
 
-        recyclerView.adapter = StockcheckItemAdapter(requireContext(), stockDataset)
-        recyclerView.setHasFixedSize(true)
+            recyclerView.adapter = StockcheckItemAdapter(requireContext(), stockDataset)
+            recyclerView.setHasFixedSize(true)
+        }
+
     }
 }
 

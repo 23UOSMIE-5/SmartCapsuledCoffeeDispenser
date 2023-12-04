@@ -9,6 +9,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.aninterface.R
 import com.example.aninterface.adapter.StockmanagementAdapter
 import com.example.aninterface.data.DataSource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class StockManagementFragment : Fragment() {
     override fun onCreateView(
@@ -22,12 +25,17 @@ class StockManagementFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // recycle view의 item으로 사용할 dataset 불러오기
-        val stockDataset = DataSource().loadstock()
-        val coffeeDataset = DataSource().loadCoffeeInfo()
+        CoroutineScope(Dispatchers.Main).launch {
+            val stockDataset = DataSource().loadstock("mylandy2")
 
-        val recyclerView = view.findViewById<RecyclerView>(R.id.StockManagementRecyclerView)
+            // stockDataset을 사용하여 UI 업데이트 등의 작업을 수행
+            val coffeeDataset = DataSource().loadCoffeeInfo()
 
-        recyclerView.adapter = StockmanagementAdapter(requireContext(), stockDataset, coffeeDataset)
-        recyclerView.setHasFixedSize(true)
+            val recyclerView = view.findViewById<RecyclerView>(R.id.StockManagementRecyclerView)
+
+            recyclerView.adapter = StockmanagementAdapter(requireContext(), stockDataset, coffeeDataset)
+            recyclerView.setHasFixedSize(true)
+        }
+
     }
 }
