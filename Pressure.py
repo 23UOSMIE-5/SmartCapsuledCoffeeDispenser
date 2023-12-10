@@ -1,21 +1,21 @@
 import RPi.GPIO as GPIO
 from GPIOManager import GpioManager
+from SerialManager import SerialManager, RECENT_SERIAL
 
-class Pressure(GpioManager):
 
-    __pressure = None
 
-    def __init__(self, pressure : int):
-        super().__init__()
-        self.__pressure =  pressure
+
+class Pressure(SerialManager) :
+
+    def __init__(self, serial_name):
+        super().__init__(serial_name)
         self.__setup()
 
     def __setup(self):
-        GPIO.setup(self.__pressure, GPIO.IN)
-    
-    def read(self):
-        return GPIO.input(self.__pressure)
+        return True
+       
 
 if __name__ =='__main__' : 
-    led = Pressure(3)
-    print("helloo")
+    pres = Pressure(RECENT_SERIAL)
+    while True:
+        print(pres.readline())
