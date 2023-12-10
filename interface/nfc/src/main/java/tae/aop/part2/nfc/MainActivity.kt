@@ -27,10 +27,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+    private val TAG = "NFCActivity"
     private var tagList: LinearLayout? = null
     private var nfcAdapter: NfcAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate 호출됨")
         setContentView(R.layout.activity_main)
         tagList = findViewById<View>(R.id.list) as LinearLayout
         resolveIntent(intent)
@@ -43,6 +45,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        Log.d(TAG, "onResume 호출됨")
         if (nfcAdapter?.isEnabled == false) {
             openNfcSettings()
         }
@@ -57,14 +60,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+        Log.d(TAG, "onPause 호출됨")
         nfcAdapter?.disableForegroundDispatch(this)
     }
 
     public override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-
+        Log.d(TAG, "onNewIntent 호출됨, Intent: $intent")
         setIntent(intent)
         resolveIntent(intent)
+        finish()
     }
 
     private fun showNoNfcDialog() {
@@ -87,6 +92,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun resolveIntent(intent: Intent) {
+        Log.d(TAG, "resolveIntent 호출됨, Intent: $intent")
         var IDdecString: String = "myhome383"
         val validActions = listOf(
             NfcAdapter.ACTION_TAG_DISCOVERED,

@@ -35,7 +35,7 @@ class StockManagementFragment : Fragment() {
         // recycle view의 item으로 사용할 dataset 불러오기
         CoroutineScope(Dispatchers.Main).launch {
             Log.d(TAG, "데이터 로딩 시작")
-            val stockDataset = DataSource().loadstock(dispenserID)
+            val stockDataset = DataSource().loadStockFromDeviceID(dispenserID)
             Log.d(TAG, "재고 데이터셋 로드됨: $stockDataset")
             // stockDataset을 사용하여 UI 업데이트 등의 작업을 수행
 

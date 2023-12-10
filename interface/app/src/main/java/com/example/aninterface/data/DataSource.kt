@@ -14,6 +14,43 @@ class DataSource {
     suspend fun loadstock(usingID: String): List<DeviceInfo> {
         return loadStockFromFirebase(usingID)
     }
+
+    suspend fun loadStockFromDeviceID(dispenserID: String): List<DeviceInfo> {
+        return withContext(Dispatchers.IO) {
+            val db = FirebaseFirestore.getInstance()
+            val serialNumberRef = db.collection("SerialNumber")
+
+            val deviceInfoList = mutableListOf<DeviceInfo>()
+
+            try {
+                val serialDocument = serialNumberRef.document(dispenserID).get().await()
+                val coffeeDataMap = mutableMapOf<String, CoffeeData>()
+
+                for (i in 1..3) {  // Assuming a maximum of 3 lines per device; adjust as needed
+                    val coffeeName = serialDocument.getString("#${i} Coffee") ?: ""
+                    val coffeeStock = serialDocument.getLong("#${i} Coffee Stock")?.toString() ?: "0"
+                    coffeeDataMap["#$i Coffee"] = CoffeeData(coffeeName, coffeeStock)
+
+                    Log.d("FirebaseSuccess", "Line processed- Coffee:$coffeeName, Stock:$coffeeStock")
+                }
+
+
+                deviceInfoList.add(
+                    DeviceInfo(
+                        deviceName = "NULL",
+                        usingId = "mylandy2",
+                        lineCount = "3",
+                        coffeeData = coffeeDataMap
+                    )
+                )
+            } catch (e: Exception) {
+                Log.e("FirebaseError", "Error fetching document", e)
+            }
+
+            deviceInfoList
+        }
+    }
+
     suspend fun loadCoffeeInfo(): CoffeeDatabase {
         return withContext(Dispatchers.IO) {
             val db = FirebaseFirestore.getInstance()
