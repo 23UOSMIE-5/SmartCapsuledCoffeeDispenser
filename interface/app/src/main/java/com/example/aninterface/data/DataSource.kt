@@ -10,36 +10,36 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-// 기기 데이터셋 1
-val device1Info = DeviceInfo(
-    deviceName = "집",
-    usingId = "happy",
-    lineCount = "2",
-    coffeeData = mapOf(
-        "1" to CoffeeData("아메리카노", "4"),
-        "2" to CoffeeData("카페라떼", "7")
-    )
-)
-
-// 기기 데이터셋 2
-val device2Info = DeviceInfo(
-    deviceName = "회사",
-    usingId = "happy",
-    lineCount = "3",
-    coffeeData = mapOf(
-        "1" to CoffeeData("카푸치노", "12"),
-        "2" to CoffeeData("핫초코", "2"),
-        "3" to CoffeeData("아메리카노", "5")
-    )
-)
-
-// 기기 데이터셋 1, 2 통합
 class DataSource {
     suspend fun loadstock(usingID: String): List<DeviceInfo> {
         return loadStockFromFirebase(usingID)
     }
-    fun loadCoffeeInfo(): CoffeeDatabase {
-        return coffeeDatabase
+    suspend fun loadCoffeeInfo(): CoffeeDatabase {
+        return withContext(Dispatchers.IO) {
+            val db = FirebaseFirestore.getInstance()
+            val coffeeDBRef = db.collection("CoffeeDB")
+            val coffeeIndex = mutableMapOf<String, CoffeeInfo>()
+
+            try {
+                val coffeeDocuments = coffeeDBRef.get().await()
+                for (document in coffeeDocuments) {
+                    val coffeeName = document.getString("CoffeeName") ?: ""
+                    val caffeine = document.getLong("Caffeine")?.toString() ?: "0" // 숫자로 읽은 후 문자열로 변환
+                    val calories = document.getLong("Calories")?.toString() ?: "0" // 숫자로 읽은 후 문자열로 변환
+                    val coffeeInfo = CoffeeInfo(coffeeName, caffeine, calories)
+
+                    // 커피 문서 ID(예: "Coffee_1")에서 숫자 부분 추출
+                    val coffeeId = document.id.split("_").lastOrNull() ?: continue
+                    Log.d("FirebaseSuccess", "coffeeId: $coffeeId, coffeeName: $coffeeName, Caffeine: $caffeine, Calories: $calories")
+                    coffeeIndex[coffeeId] = coffeeInfo
+                }
+            } catch (e: Exception) {
+                Log.e("FirebaseError", "Error fetching documents", e)
+                // 오류 처리
+            }
+
+            CoffeeDatabase(coffeeIndex)
+        }
     }
     suspend fun loadUserInfo(usingID: String): UserStatics? {
         return withContext(Dispatchers.IO) {
@@ -47,21 +47,6 @@ class DataSource {
         }
     }
 }
-
-// 커피 데이터셋
-val coffee1Info = CoffeeInfo("아메리카노", "20", "12")
-val coffee2Info = CoffeeInfo("카페라떼", "18", "11")
-val coffee3Info = CoffeeInfo("카푸치노", "16", "10")
-val coffee4Info = CoffeeInfo("핫초코", "0", "20")
-
-val coffeeDatabase = CoffeeDatabase(
-    coffeeIndex = mapOf(
-        "1" to coffee1Info,
-        "2" to coffee2Info,
-        "3" to coffee3Info,
-        "4" to coffee4Info
-    )
-)
 
 suspend fun fetchDailyStatics(usingID: String): UserStatics? {
     return try {

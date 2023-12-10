@@ -1,5 +1,6 @@
 package tae.aop.part2.nfc
 
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
 import android.nfc.NdefMessage
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity() {
 
     public override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+
         setIntent(intent)
         resolveIntent(intent)
     }
@@ -125,6 +127,12 @@ class MainActivity : AppCompatActivity() {
             var usingId:String = "mylandy2" // TODO 회원가입 기능 추가 후 해당하는 ID 갱신하도록 수정
 
             db.collection("SerialNumber").document(IDdecString).update("UsingID", usingId)
+
+            // App 모듈로 결과 전달
+            val returnIntent = Intent()
+            returnIntent.putExtra("DispenserID", IDdecString)
+            setResult(Activity.RESULT_OK, returnIntent)
+            finish() // NFC 모듈 액티비티 종료
         }
     }
 
