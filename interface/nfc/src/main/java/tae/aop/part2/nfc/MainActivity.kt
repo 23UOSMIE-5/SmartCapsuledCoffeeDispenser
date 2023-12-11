@@ -12,6 +12,8 @@ import android.nfc.tech.MifareUltralight
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -69,7 +71,6 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onNewIntent 호출됨, Intent: $intent")
         setIntent(intent)
         resolveIntent(intent)
-        finish()
     }
 
     private fun showNoNfcDialog() {
@@ -92,8 +93,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun resolveIntent(intent: Intent) {
+        val id = intent.getByteArrayExtra(NfcAdapter.EXTRA_ID)
+        var IDdecString = if (id != null) toDec(id).toString() else "NULL"
         Log.d(TAG, "resolveIntent 호출됨, Intent: $intent")
-        var IDdecString: String = "myhome383"
+
         val validActions = listOf(
             NfcAdapter.ACTION_TAG_DISCOVERED,
             NfcAdapter.ACTION_TECH_DISCOVERED,
@@ -103,6 +106,7 @@ class MainActivity : AppCompatActivity() {
             // TODO
             val rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
             val messages = mutableListOf<NdefMessage>()
+
             if (rawMsgs != null) {
                 rawMsgs.forEach {
                     messages.add(it as NdefMessage)
@@ -128,17 +132,19 @@ class MainActivity : AppCompatActivity() {
 
             // Setup the views
             buildTagViews(messages)
+
             var db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
             var usingId:String = "mylandy2" // TODO 회원가입 기능 추가 후 해당하는 ID 갱신하도록 수정
 
             db.collection("SerialNumber").document(IDdecString).update("UsingID", usingId)
+            Log.d("FirebaseSuccess", "IDdecString:$IDdecString")
 
             // App 모듈로 결과 전달
             val returnIntent = Intent()
             returnIntent.putExtra("DispenserID", IDdecString)
             setResult(Activity.RESULT_OK, returnIntent)
-            finish() // NFC 모듈 액티비티 종료
+            finish()
         }
     }
 
