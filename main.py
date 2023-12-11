@@ -7,6 +7,8 @@ import DataStructure as DS
 from DBAccessor import DBManager
 from SerialManager import RECENT_SERIAL
 
+deviceSerialNumber = '360464004024' + '51229'
+
 class StockChecker :
     loads = [Loadcell(5,6,gain=128,grad=-0.0026), 
                 Loadcell(5,6,gain=128,grad=-0.0026),
@@ -15,7 +17,7 @@ class StockChecker :
     deviceInfo : DS.Dispensor = None
 
     def setDeviceInfo(self, db : DBManager) :
-        self.deviceInfo =  db.getDeviceStock()
+        self.deviceInfo =  db.getDeviceStock(deviceSerialNumber)
 
     def calibrate(self):
         idx = 0
