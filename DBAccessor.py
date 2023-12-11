@@ -114,10 +114,39 @@ class DBManager :
         return dispensor
     
     def setUserStatics(self, id, statics : DS.PersonalStatics):
+        # UserStatics 컬렉션에서 해당 ID의 문서 참조
+        user_stats_ref = self.__db.db_firebase.collection('UserStatics').document(statics.id)
+
+        # 해당 날짜의 DailyStatics 문서 참조
+        daily_stat_ref = user_stats_ref.collection('DailyStatics').document(statics.date)
+
+        # 업데이트할 데이터
+        update_data = {
+            'Capsules': statics.consumtionOfDay,
+            'Calories': statics.caloriesOfDay,
+            'Caffeine': statics.caffeineOfDay
+        }
+
+        # Firestore 문서 업데이트
+        daily_stat_ref.set(update_data, merge=True)
         pass
 
-    def setDeviceInfo(self, id, stock : DS.Dispensor):
-        #DB에 write
+    def setDeviceInfo(self, stock : DS.Dispensor):
+        # SerialNumber 컬렉션에서 해당 serialNumber의 문서 참조
+        device_ref = self.__db.db_firebase.collection('SerialNumber').document(stock.serialNumber)
+
+        # 업데이트할 데이터 준비
+        update_data = {
+            '#1 Coffee': stock.coffee[0].name if stock.coffee[0] else None,
+            '#2 Coffee': stock.coffee[1].name if stock.coffee[1] else None,
+            '#3 Coffee': stock.coffee[2].name if stock.coffee[2] else None,
+            '#1 Coffee Stock': stock.stock[0],
+            '#2 Coffee Stock': stock.stock[1],
+            '#3 Coffee Stock': stock.stock[2]
+        }
+
+        # Firestore 문서 업데이트
+        device_ref.set(update_data, merge=True)
         pass
 
 
