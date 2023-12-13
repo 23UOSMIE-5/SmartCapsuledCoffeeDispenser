@@ -19,6 +19,7 @@ class SerialManager :
 
     def readline(self) -> str :
         line = None
+        self.__serial.reset_input_buffer()
         while( line == None):
             if(self.__serial.in_waiting > 0 ):
                 line = self.__serial.readline().decode('utf-8').rstrip()
@@ -28,5 +29,6 @@ class SerialManager :
 if __name__ == '__main__':
     ser = SerialManager(RECENT_SERIAL)
 
-    
-    print(ser.readline())
+    while True:
+        print(ser.readline())
+        

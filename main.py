@@ -47,7 +47,7 @@ if __name__ =='__main__' :
         for i, lc in enumerate(device.loads) : 
             weight = device.deviceInfo.coffee[idx].weight
             desired = weight * device.deviceInfo.stock[idx]
-            now = lc.readGrams_avg(times=16)
+            now = lc.readGrams_avg(times=8)
             print(f" num {i} is  now : {now} g")
             if(i == 2 ):
                 print("-------"*30)
@@ -55,12 +55,12 @@ if __name__ =='__main__' :
             delta =  abs(float(desired) - now)
 
             if( delta > weight * limit ) :
-                #test  필요, 정확도가 얼마나 나올지..
+                #limit 
                 deltaStock[idx] +=  int( delta / weight )
                 print(f"num : {i} dleta amount : {int( delta / weight)}")
 
             idx += 1
-            
+        print(press.readline())
         if ( (press.readline())  == '0' ) :  #비유저 모드 혹은 유저모드 이용 끝 (db write)
             new =  device.deviceInfo
             
@@ -70,6 +70,18 @@ if __name__ =='__main__' :
                         new.stock[i] -= deltaStock[i]
                         print(f"after stock : {new.stock[i]}")
                     db.setDeviceInfo(new)
+                    
+                    
+        #todo:
+        '''
+        1 .압력센서 디버깅
+        2. dstatics update
+        3. led
+        
+        
+        @. app nfc 1회 버그 고치기
+        @@. app  nfc 모듈 동작 백그라운드화
+        '''
 
 
 
