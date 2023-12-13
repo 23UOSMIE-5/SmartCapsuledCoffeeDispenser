@@ -35,7 +35,30 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate 호출됨")
         setContentView(R.layout.activity_main)
         tagList = findViewById<View>(R.id.list) as LinearLayout
-        resolveIntent(intent)
+        // NFC 인텐트 처리
+        if (intent.action == "nfc_MainActivity") {
+            Thread {
+                while (!Thread.currentThread().isInterrupted) {
+                    // 여기에서 주기적으로 NFC 태그 검사 또는 기타 작업 수행
+                    // ACTION_NDEF_DISCOVERED 인텐트를 기다림
+
+                    if (/* ACTION_NDEF_DISCOVERED 인텐트가 감지되면 */) {
+                        // 인텐트 처리
+                        runOnUiThread {
+                            // UI 업데이트
+                        }
+                        break // 루프 종료
+                    }
+                }
+                finish() // 액티비티 종료
+            }.start()
+        }
+        else if (intent.action == "android.intent.action.MAIN"){
+            resolveIntent(intent)
+        }
+        else{
+            finish()
+        }
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
         if (nfcAdapter == null) {
             showNoNfcDialog()
@@ -68,7 +91,9 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         Log.d(TAG, "onNewIntent 호출됨, Intent: $intent")
         setIntent(intent)
-        resolveIntent(intent)
+        if (intent.action in listOf(NfcAdapter.ACTION_TAG_DISCOVERED, NfcAdapter.ACTION_TECH_DISCOVERED, NfcAdapter.ACTION_NDEF_DISCOVERED)) {
+            intentFromAPP(intent)
+        }
         finish()
     }
 
@@ -133,13 +158,24 @@ class MainActivity : AppCompatActivity() {
             var usingId:String = "mylandy2" // TODO 회원가입 기능 추가 후 해당하는 ID 갱신하도록 수정
 
             db.collection("SerialNumber").document(IDdecString).update("UsingID", usingId)
-
-            // App 모듈로 결과 전달
-            val returnIntent = Intent()
-            returnIntent.putExtra("DispenserID", IDdecString)
-            setResult(Activity.RESULT_OK, returnIntent)
-            finish() // NFC 모듈 액티비티 종료
         }
+    }
+
+    // APP 모듈 인텐트 처리
+    private fun intentFromAPP(intent: Intent) {
+        Log.d(TAG, "intentFromAPP 호출됨, Intent: $intent")
+        var IDdecString: String = "myhome383"
+
+        // APP 모듈과의 인터페이스 관련 로직
+        val id = intent.getByteArrayExtra(NfcAdapter.EXTRA_ID)
+        IDdecString = if (id != null) toDec(id).toString() else "NULL"
+
+        // App 모듈로 결과 전달
+        val returnIntent = Intent()
+        returnIntent.putExtra("DispenserID", IDdecString)
+        returnIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        setResult(Activity.RESULT_OK, returnIntent)
+        finish() // NFC 모듈 액티비티 종료
     }
 
     private fun dumpTagData(tag: Tag): String {
