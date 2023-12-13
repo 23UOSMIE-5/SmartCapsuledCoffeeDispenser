@@ -30,7 +30,7 @@ class StockChecker :
         self.deviceInfo =  self.db.getDeviceStock(deviceSerialNumber)
         
     def getUserStaticsFromDb(self) : 
-        self.usingUserStatics = self.db.getPersonalStatics()
+        self.usingUserStatics = self.db.getPersonalStatics(self.serialNumber)
     
     def writeDeviceInfoFromLocal(self) :
         self.db.setDeviceInfo(self.deviceInfo)

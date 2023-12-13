@@ -53,7 +53,7 @@ class DBManager :
         personal_statics.date = today
 
         if not user_stat_doc.exists:
-            print("No statistics found for user ID:", using_id, "on date:", today)
+            print("No statistics found for user ID:", using_id, "on date:", today, "create new")
             # 오늘 날짜에 해당하는 문서가 없으면 id와 date만 설정된 객체 반환
             return personal_statics
 
