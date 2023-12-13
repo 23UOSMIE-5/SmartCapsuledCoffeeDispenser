@@ -5,6 +5,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 import datetime
 
+NO_USER = ''
 class dbAccessor:
     db_firebase =None
     def setup(self):
@@ -37,6 +38,8 @@ class DBManager :
             return None
 
         using_id = device_doc.to_dict()['UsingID']
+        if(using_id == NO_USER ) : 
+            return None
 
         # 오늘 날짜 설정
         today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -112,7 +115,7 @@ class DBManager :
 
         return dispensor
     
-    def setUserStatics(self, id, statics : DS.PersonalStatics):
+    def setUserStatics(self, statics : DS.PersonalStatics):
         # UserStatics 컬렉션에서 해당 ID의 문서 참조
         user_stats_ref = self.__db.db_firebase.collection('UserStatics').document(statics.id)
 

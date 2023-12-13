@@ -25,7 +25,7 @@ class StockChecker :
             desired = self.deviceInfo.coffee[idx].weight * self.deviceInfo.stock[idx]
             lc.calibrate(desired)
             idx += 1
-   
+            
 
 if __name__ =='__main__' : 
 
@@ -33,19 +33,26 @@ if __name__ =='__main__' :
     device = StockChecker()             #3무게센서
     led = Led(26)                       #led
     press = Pressure(RECENT_SERIAL)     #압력센서
-
+    
     device.setDeviceInfo(db)
     device.calibrate()
 
     limit = 0.33 #무게 신뢰오차
+    user : DS.PersonalStatics = None #user personal statics
 
     while(True):
         device.setDeviceInfo(db)
+        
         idx = 0
         deltaStock = [0 ,0, 0]  #재고변화량
+        isStockChanged = False  #재고변화 존재여부
         
         isUser = int(press.readline()) > 0
         led.turnFromData(isUser)
+        
+        if(isUser):
+            user = db.getPersonalStatics(deviceSerialNumber) #if no one using it, return none
+            
         
         for i, lc in enumerate(device.loads) : 
             weight = device.deviceInfo.coffee[idx].weight
@@ -60,19 +67,23 @@ if __name__ =='__main__' :
             if( delta > weight * limit ) :
                 #limit 
                 deltaStock[idx] +=  int( delta / weight )
+                isStockChanged = True
                 print(f"num : {i} dleta amount : {int( delta / weight)}")
 
             idx += 1
     
-        if ( isUser != True ) :  #비유저 모드 혹은 유저모드 이용 끝 (db write)
+        if ( isUser != True and isStockChanged) :  #비유저 모드 혹은 유저모드 이용 끝 (db write)
             new =  device.deviceInfo
             print("write time")
+         
             for i in range(3):
-                if(deltaStock[i]>0):
-                    for i in range(3):
-                        new.stock[i] -= deltaStock[i]
-                        print(f"after stock : {new.stock[i]}")
-                    db.setDeviceInfo(new)
+                new.stock[i] -= deltaStock[i]
+                print(f"after stock : {new.stock[i]}")
+            db.setDeviceInfo(new)
+            if(user != None):
+                db.setUserStatics(user)
+            
+            
                     
                     
         #todo:
