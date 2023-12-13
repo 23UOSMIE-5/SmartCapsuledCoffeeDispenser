@@ -37,7 +37,6 @@ class MainActivity : AppCompatActivity() {
         tagList = findViewById<View>(R.id.list) as LinearLayout
         // NFC 인텐트 처리
         if (intent.action == "nfc_MainActivity") {
-            intentFromAPP(intent)
         }
         else if (intent.action == "android.intent.action.MAIN"){
             resolveIntent(intent)
