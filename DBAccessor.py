@@ -43,8 +43,10 @@ class DBManager :
 
         # 오늘 날짜 설정
         today = datetime.datetime.now().strftime("%Y-%m-%d")
+        #for test, exist date document return
 
         # UserStatics 컬렉션에서 ID에 해당하는 문서 찾기
+        
         user_stat_doc = self.__db.db_firebase.collection('UserStatics').document(using_id)\
                         .collection('DailyStatics').document(today).get()
 
@@ -144,14 +146,29 @@ class DBManager :
             '#3 Coffee': stock.coffee[2].name if stock.coffee[2] else None,
             '#1 Coffee Stock': stock.stock[0],
             '#2 Coffee Stock': stock.stock[1],
-            '#3 Coffee Stock': stock.stock[2]
+            '#3 Coffee Stock': stock.stock[2],
         }
+        
 
         # Firestore 문서 업데이트
         device_ref.set(update_data, merge=True)
         print(update_data)
         print("data update !")
         pass
+    
+    def resetUsingId(self, stock : DS.Dispensor):
+        # SerialNumber 컬렉션에서 해당 serialNumber의 문서 참조
+        device_ref = self.__db.db_firebase.collection('SerialNumber').document(stock.serialNumber)
 
+        # 업데이트할 데이터 준비
+        update_data = {
+            'UsingID' : '0'
+        }
+        
+        # Firestore 문서 업데이트
+        device_ref.set(update_data, merge=True)
+        print(update_data)
+        print("data update !")
+        pass
 
 

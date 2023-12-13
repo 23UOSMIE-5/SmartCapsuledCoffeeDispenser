@@ -49,7 +49,7 @@ class StockChecker :
         self.writeDeviceInfoFromLocal()
         if(self.user != None):
             self.writeUserStaticsFromLoacl()
-        
+            self.db.resetUsingId(self.deviceInfo)
       
     def calibrate(self):
         idx = 0
@@ -78,7 +78,10 @@ if __name__ =='__main__' :
         deltaStock = [0 ,0, 0]  #재고변화량
         isStockChanged = False  #재고변화 존재여부
         
-        isUser = int(press.readline()) > 0
+        try :
+            isUser = int(press.readline()) > 0
+        except:
+            isUser = 0
         led.turnFromData(isUser)
         
         if(isUser):
@@ -104,6 +107,7 @@ if __name__ =='__main__' :
         #[비유저 모드 혹은 유저모드 이용 끝] + [재고변화] =  db write
         if ( isUser != True and isStockChanged) :  
             device.consumeCoffee(deltaStock)
+            device.getUserStaticsFromDb()
         
                     
         #todo:

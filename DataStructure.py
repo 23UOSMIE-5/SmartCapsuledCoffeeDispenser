@@ -1,4 +1,4 @@
-import time
+import datetime
 
 class Coffee :
     name = ""
@@ -20,8 +20,8 @@ class PersonalStatics:
     caffeineOfDay = 0
 
     def consumeCoffee(self, coffee : Coffee ) :
-        self.date =  time.now()
-        self.consumeCoffee += 1
+        self.date =  datetime.datetime.now().strftime("%Y-%m-%d")
+        self.consumtionOfDay += 1
         self.caloriesOfDay += coffee.calories
         self.caffeineOfDay += coffee.caffeine
 
