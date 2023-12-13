@@ -44,11 +44,11 @@ if __name__ =='__main__' :
         deltaStock = [0 ,0, 0]  #재고변화량
         for lc in device.loads : 
             weight = device.deviceInfo.coffee[idx].weight
-
+            print(type(weight))
             desired = weight * device.deviceInfo.stock[idx]
             now = lc.readGrams_avg(times=16)
 
-            delta =  abs(desired - now)
+            delta =  abs(float(desired) - now)
 
             if( delta > weight * limit ) :
                 #test  필요, 정확도가 얼마나 나올지..

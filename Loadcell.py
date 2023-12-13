@@ -13,6 +13,7 @@ class Loadcell(GpioManager):
 
     def __init__(self, dout, pd_sck, gain=128, grad = 1.0, offset = 0.0):
         super().__init__()
+        self.__hx = hx711.HX711(dout,pd_sck,gain=gain)
         self.__reverseGradient = grad
         self.__offset = offset
         self.__setup()
@@ -29,9 +30,9 @@ class Loadcell(GpioManager):
                 print("Initialization complete!")
                 scale_ready = True
 
-    def readGrams_avg(self, times=16):
+    def readGrams_avg(self, times=16)-> float : 
         x = self.__hx.read_average(times=times)
-        return (x-self.__offset)/self.__reverseGradient - int(self.__offset)
+        return float((x-self.__offset)/self.__reverseGradient - int(self.__error))
 
 
 if __name__ =='__main__' : 

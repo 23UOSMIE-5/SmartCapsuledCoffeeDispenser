@@ -6,8 +6,7 @@ from firebase_admin import firestore
 import datetime
 
 class dbAccessor:
-    dummy =  3
-
+    db_firebase =None
     def setup(self):
         # Path to your service account key file
         cred = credentials.Certificate('./SmartCapsuledCoffeeDispenser.json')
@@ -23,8 +22,8 @@ class DBManager :
     __db = None
 
     def __init__(self):
-        __db =  dbAccessor()
-        while (__db.setup() != True) :
+        self.__db =  dbAccessor()
+        while (self.__db.setup() != True) :
             None
 
     def __del__(self):

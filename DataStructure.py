@@ -1,5 +1,4 @@
 import time
-from DBAccessor import DBManager
 
 class Coffee :
     name = ""
