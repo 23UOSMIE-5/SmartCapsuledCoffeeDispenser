@@ -146,6 +146,8 @@ class DBManager :
 
         # Firestore 문서 업데이트
         device_ref.set(update_data, merge=True)
+        print(update_data)
+        print("data update !")
         pass
 
 

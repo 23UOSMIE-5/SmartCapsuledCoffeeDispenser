@@ -12,8 +12,6 @@ class CoffeeSet:
     def make(self,*args):
         for i in args:
             self.coffeeSet.append(i)
-            print(i, " appended")
-
 class PersonalStatics:
     id = None
     date = None

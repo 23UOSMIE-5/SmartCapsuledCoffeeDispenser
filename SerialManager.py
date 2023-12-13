@@ -17,7 +17,7 @@ class SerialManager :
         return
 
 
-    def readline(self) :
+    def readline(self) -> str :
         line = None
         while( line == None):
             if(self.__serial.in_waiting > 0 ):

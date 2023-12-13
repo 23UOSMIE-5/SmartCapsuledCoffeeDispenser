@@ -37,30 +37,39 @@ if __name__ =='__main__' :
     device.setDeviceInfo(db)
     device.calibrate()
 
-    limit = 0.05 #무게 신뢰오차
+    limit = 0.33 #무게 신뢰오차
 
     while(True):
+        device.setDeviceInfo(db)
         idx = 0
         deltaStock = [0 ,0, 0]  #재고변화량
-        for lc in device.loads : 
+        
+        for i, lc in enumerate(device.loads) : 
             weight = device.deviceInfo.coffee[idx].weight
-            print(type(weight))
             desired = weight * device.deviceInfo.stock[idx]
             now = lc.readGrams_avg(times=16)
+            print(f" num {i} is  now : {now} g")
+            if(i == 2 ):
+                print("-------"*30)
 
             delta =  abs(float(desired) - now)
 
             if( delta > weight * limit ) :
                 #test  필요, 정확도가 얼마나 나올지..
                 deltaStock[idx] +=  int( delta / weight )
+                print(f"num : {i} dleta amount : {int( delta / weight)}")
 
             idx += 1
-        
-        if ( int(press.readline())  == 0 ) :  #비유저 모드 혹은 유저모드 이용 끝 (db write)
+            
+        if ( (press.readline())  == '0' ) :  #비유저 모드 혹은 유저모드 이용 끝 (db write)
             new =  device.deviceInfo
-            for i, delta in new.stock , deltaStock :
-                i -= delta
-            db.setDeviceInfo(new)
+            
+            for i in range(3):
+                if(deltaStock[i]>0):
+                    for i in range(3):
+                        new.stock[i] -= deltaStock[i]
+                        print(f"after stock : {new.stock[i]}")
+                    db.setDeviceInfo(new)
 
 
 

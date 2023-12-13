@@ -19,7 +19,8 @@ class Loadcell(GpioManager):
         self.__setup()
 
     def calibrate(self,desired, times=16):
-        self.__error = self.readGrams_avg(times)
+        #desired로 현재 무게를 cali
+        self.__error = self.readGrams_avg(times) - desired
 
     def __setup(self):
         scale_ready = False
