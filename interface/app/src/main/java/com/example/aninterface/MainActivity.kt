@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             Log.d(TAG, "Destination 변경됨: ${destination.id}")
-            if (destination.id == R.id.navigation_stock_management) {
+            if (destination.id == R.id.navigation_stock_management && currentDispenserID == null) {
                 Log.d(TAG, "navigation_stock_management로 이동 시도")
                 val intent = Intent("nfc_MainActivity")
                 intent.setPackage("tae.aop.part2.nfc")

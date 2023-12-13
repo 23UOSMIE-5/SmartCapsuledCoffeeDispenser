@@ -37,21 +37,7 @@ class MainActivity : AppCompatActivity() {
         tagList = findViewById<View>(R.id.list) as LinearLayout
         // NFC 인텐트 처리
         if (intent.action == "nfc_MainActivity") {
-            Thread {
-                while (!Thread.currentThread().isInterrupted) {
-                    // 여기에서 주기적으로 NFC 태그 검사 또는 기타 작업 수행
-                    // ACTION_NDEF_DISCOVERED 인텐트를 기다림
-
-                    if (/* ACTION_NDEF_DISCOVERED 인텐트가 감지되면 */) {
-                        // 인텐트 처리
-                        runOnUiThread {
-                            // UI 업데이트
-                        }
-                        break // 루프 종료
-                    }
-                }
-                finish() // 액티비티 종료
-            }.start()
+            intentFromAPP(intent)
         }
         else if (intent.action == "android.intent.action.MAIN"){
             resolveIntent(intent)
@@ -172,6 +158,7 @@ class MainActivity : AppCompatActivity() {
 
         // App 모듈로 결과 전달
         val returnIntent = Intent()
+        returnIntent.action = "ACTION_ALREADY_HANDLED"
         returnIntent.putExtra("DispenserID", IDdecString)
         returnIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         setResult(Activity.RESULT_OK, returnIntent)
