@@ -3,6 +3,7 @@ package com.example.aninterface.adapter
 import android.app.AlertDialog
 import android.content.Context
 import android.text.InputType
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,8 @@ import com.example.aninterface.model.CoffeeDatabase
 import com.example.aninterface.model.DeviceInfo
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+
+private const val TAG = "stockmanagementadapter"
 
 // 재고 확인 리사이클 뷰에 대한 어댑터
 
@@ -38,10 +41,16 @@ class StockmanagementAdapter(
 
     // 리사이클 뷰의 내용을 데이터 주소 기반으로 수정 (데이터셋의 인덱스 1값을 기준으로 재고 관리 내용 출력)
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val item = dataset[position]
+        val item = dataset.first() // dataset에는 하나의 DeviceInfo 객체만 있음
+        Log.d(TAG, "onBindViewHolder - Position: $position, Item: $item")
+        val coffeeKey = "#${position + 1} Coffee"
+
         holder.itemIndex.text = "${position + 1}번"
-        holder.Button1.text = item.coffeeData["#${position + 1} Coffee"]?.coffeeName ?: ""
-        holder.Button2.text = item.coffeeData["#${position + 1} Coffee Stock"]?.toString() ?: ""
+        holder.Button1.text = item.coffeeData[coffeeKey]?.coffeeName ?: "N/A"
+        val coffeeStock = item.coffeeData[coffeeKey]?.coffeeStock?: "N/A"
+        holder.Button2.text = coffeeStock
+
+        Log.d(TAG, "CoffeeStock for $coffeeKey: $coffeeStock")
 
         // 커피 종류 버튼을 누를 때 나오는 커피 종류 리스트
         val options = (1..dataset2.coffeeIndex.size).map { index ->
@@ -63,7 +72,9 @@ class StockmanagementAdapter(
     }
 
     // recycleview의 item 개수를 결정하는 함수 (데이터셋의 인덱스 1값의 linecount 만큼 item을 출력 : 기기 하나에 대한 재고 관리 item이기 때문)
-    override fun getItemCount() = dataset.size
+    override fun getItemCount(): Int {
+        return dataset.firstOrNull()?.lineCount?.toIntOrNull() ?: 0
+    }
 }
 
 private fun showOptionsDialog(
