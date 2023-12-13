@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate 호출됨")
         setContentView(R.layout.activity_main)
-        tagList = findViewById<View>(R.id.list) as LinearLayout
+        //tagList = findViewById<View>(R.id.list) as LinearLayout
         // NFC 인텐트 처리
         if (intent.action == "nfc_MainActivity") {
         }
@@ -301,9 +301,9 @@ class MainActivity : AppCompatActivity() {
     private fun clearTags() {
         for (i in tagList!!.childCount - 1 downTo 0) {
             val view = tagList!!.getChildAt(i)
-            if (view.id != R.id.tag_viewer_text) {
-                tagList!!.removeViewAt(i)
-            }
+            //if (view.id != R.id.tag_viewer_text) {
+            //    tagList!!.removeViewAt(i)
+            //}
         }
     }
 
