@@ -15,6 +15,7 @@ import com.example.aninterface.model.CoffeeDatabase
 import com.example.aninterface.model.DeviceInfo
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.firestore.FirebaseFirestore
 
 private const val TAG = "stockmanagementadapter"
 
@@ -23,7 +24,8 @@ private const val TAG = "stockmanagementadapter"
 class StockmanagementAdapter(
     private val context: Context,
     private val dataset: List<DeviceInfo>,
-    private val dataset2: CoffeeDatabase
+    private val dataset2: CoffeeDatabase,
+    private val dispenserID: String // dispenserID를 어댑터에 전달
 ) : RecyclerView.Adapter<StockmanagementAdapter.ItemViewHolder>() {
     // 리사이클 뷰의 item 구성요소의 아이디를 받아오는 클래스
     class ItemViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
@@ -42,7 +44,6 @@ class StockmanagementAdapter(
     // 리사이클 뷰의 내용을 데이터 주소 기반으로 수정 (데이터셋의 인덱스 1값을 기준으로 재고 관리 내용 출력)
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = dataset.first() // dataset에는 하나의 DeviceInfo 객체만 있음
-        Log.d(TAG, "onBindViewHolder - Position: $position, Item: $item")
         val coffeeKey = "#${position + 1} Coffee"
 
         holder.itemIndex.text = "${position + 1}번"
@@ -50,25 +51,28 @@ class StockmanagementAdapter(
         val coffeeStock = item.coffeeData[coffeeKey]?.coffeeStock?: "N/A"
         holder.Button2.text = coffeeStock
 
-        Log.d(TAG, "CoffeeStock for $coffeeKey: $coffeeStock")
+        // 옵션 리스트 생성
+        val options = dataset2.coffeeIndex.values.map { it.coffeeName }
 
-        // 커피 종류 버튼을 누를 때 나오는 커피 종류 리스트
-        val options = (1..dataset2.coffeeIndex.size).map { index ->
-            dataset2.coffeeIndex[index.toString()]?.coffeeName
-        }
-
-        // 커피 종류 버튼을 눌렀을 때 커피 종류 리스트 중 선택한 내용을 업데이트 하는 클릭 함수
+        // 커피 종류 선택 시 동작
         holder.Button1.setOnClickListener {
-            showOptionsDialog(context, options.filterNotNull()) { selectedOption ->
-                holder.Button1.text = selectedOption
+            showOptionsDialog(context, options) { selectedCoffee ->
+                holder.Button1.text = selectedCoffee
+                // Firestore 업데이트
+                val updateMap = mapOf(coffeeKey to selectedCoffee)
+                FirebaseFirestore.getInstance().collection("SerialNumber").document(dispenserID).update(updateMap)
             }
         }
 
-        // 커피 개수 버튼을 눌렀을 때 커피 개수를 입력할 수 있는 창이 출력되는 클릭 함수
+        // 커피 수량 입력 시 동작
         holder.Button2.setOnClickListener {
-            showNumberPadDialog(holder.Button2)
+            showNumberPadDialog(holder.Button2) { enteredNumber ->
+                // Firestore 업데이트
+                val coffeeStockKey = "$coffeeKey Stock"
+                val updateMap = mapOf(coffeeStockKey to enteredNumber.toInt())
+                FirebaseFirestore.getInstance().collection("SerialNumber").document(dispenserID).update(updateMap)
+            }
         }
-
     }
 
     // recycleview의 item 개수를 결정하는 함수 (데이터셋의 인덱스 1값의 linecount 만큼 item을 출력 : 기기 하나에 대한 재고 관리 item이기 때문)
@@ -91,9 +95,8 @@ private fun showOptionsDialog(
     builder.show()
 }
 
-private fun showNumberPadDialog(numberButton: Button) {
+private fun showNumberPadDialog(numberButton: Button, onNumberEntered: (String) -> Unit) {
     val inputEditText = TextInputEditText(numberButton.context)
-
     inputEditText.inputType = InputType.TYPE_CLASS_NUMBER
 
     MaterialAlertDialogBuilder(numberButton.context)
@@ -102,6 +105,7 @@ private fun showNumberPadDialog(numberButton: Button) {
         .setPositiveButton("확인") { _, _ ->
             val enteredNumber = inputEditText.text.toString()
             numberButton.text = enteredNumber
+            onNumberEntered(enteredNumber)
         }
         .setNegativeButton("취소") { dialog, _ ->
             dialog.dismiss()

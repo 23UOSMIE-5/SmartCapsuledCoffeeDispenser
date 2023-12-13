@@ -45,7 +45,7 @@ class StockManagementFragment : Fragment() {
 
             val recyclerView = view.findViewById<RecyclerView>(R.id.StockManagementRecyclerView)
 
-            recyclerView.adapter = StockmanagementAdapter(requireContext(), stockDataset, coffeeDataset)
+            recyclerView.adapter = StockmanagementAdapter(requireContext(), stockDataset, coffeeDataset, dispenserID)
             recyclerView.setHasFixedSize(true)
             Log.d(TAG, "RecyclerView 설정 완료")
         }
