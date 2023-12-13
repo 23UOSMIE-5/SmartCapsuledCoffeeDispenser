@@ -31,14 +31,6 @@ class Dispensor :
     coffee = [Coffee() , Coffee() , Coffee() ]
     stock  = [0, 0, 0]
 
-    def consumeCoffee(self, idx):
-        if(self.stock[idx]> 1) :
-            self.stock[idx] -= 1 
-            return True
-        else:
-            print("OverConsumption Called!")
-            return False
-
 if __name__ =='__main__' : 
     cof =  CoffeeSet()
 

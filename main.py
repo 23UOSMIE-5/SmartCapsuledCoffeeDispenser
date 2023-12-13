@@ -17,35 +17,40 @@ class StockChecker :
     serialNumber : str  = None
     
     deviceInfo : DS.Dispensor = None
-    usingUserStatics : DS.PersonalStatics = None
+    user : DS.PersonalStatics = None
+    
     db = DBManager()
-    coffeelist = []
     
     def __init__(self, serialNumber):
         self.serialNumber = serialNumber
         self.getDeviceInfoFromDb()
+        self.getUserStaticsFromDb()
         self.calibrate()
         
     def getDeviceInfoFromDb(self) :
         self.deviceInfo =  self.db.getDeviceStock(deviceSerialNumber)
         
     def getUserStaticsFromDb(self) : 
-        self.usingUserStatics = self.db.getPersonalStatics(self.serialNumber)
+        self.user = self.db.getPersonalStatics(self.serialNumber)
     
     def writeDeviceInfoFromLocal(self) :
         self.db.setDeviceInfo(self.deviceInfo)
         
+    def writeUserStaticsFromLoacl(self):
+        self.db.setUserStatics(self.user)
+        
     def consumeCoffee(self, deltastock : list ) :
-        for i in range(3):
+        for i in range(len(self.loads)): #line 수만큼
             self.deviceInfo.stock[i] -= deltaStock[i]
             print(f"after stock : {self.deviceInfo.stock[i]}")
-            
+            if(self.user != None):
+                self.user.consumeCoffee(self.deviceInfo.coffee[i])
+                
         self.writeDeviceInfoFromLocal()
         if(self.user != None):
-            #todo: update user statics
-            pass
-            
-
+            self.writeUserStaticsFromLoacl()
+        
+      
     def calibrate(self):
         idx = 0
         for lc in self.loads:
@@ -100,14 +105,12 @@ if __name__ =='__main__' :
         if ( isUser != True and isStockChanged) :  
             device.consumeCoffee(deltaStock)
         
-            
                     
         #todo:
         '''
         1 .압력센서 디버깅   [v]
-        2. dstatics update  [ ]
+        2. dstatics update  [v]
         3. led              [v]
-        
         
         @. app nfc 1회 버그 고치기
         @@. app  nfc 모듈 동작 백그라운드화
