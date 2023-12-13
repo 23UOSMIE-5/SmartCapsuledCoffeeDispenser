@@ -23,6 +23,7 @@ class SerialManager :
         while( line == None):
             if(self.__serial.in_waiting > 0 ):
                 line = self.__serial.readline().decode('utf-8').rstrip()
+                self.__serial.reset_input_buffer()
         return line
 
 

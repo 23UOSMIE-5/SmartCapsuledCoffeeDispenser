@@ -31,7 +31,7 @@ if __name__ =='__main__' :
 
     db =  DBManager()
     device = StockChecker()             #3무게센서
-    led = Led(11)                       #led
+    led = Led(26)                       #led
     press = Pressure(RECENT_SERIAL)     #압력센서
 
     device.setDeviceInfo(db)
@@ -43,6 +43,9 @@ if __name__ =='__main__' :
         device.setDeviceInfo(db)
         idx = 0
         deltaStock = [0 ,0, 0]  #재고변화량
+        
+        isUser = int(press.readline()) > 0
+        led.turnFromData(isUser)
         
         for i, lc in enumerate(device.loads) : 
             weight = device.deviceInfo.coffee[idx].weight
@@ -60,10 +63,10 @@ if __name__ =='__main__' :
                 print(f"num : {i} dleta amount : {int( delta / weight)}")
 
             idx += 1
-        print(press.readline())
-        if ( (press.readline())  == '0' ) :  #비유저 모드 혹은 유저모드 이용 끝 (db write)
+    
+        if ( isUser != True ) :  #비유저 모드 혹은 유저모드 이용 끝 (db write)
             new =  device.deviceInfo
-            
+            print("write time")
             for i in range(3):
                 if(deltaStock[i]>0):
                     for i in range(3):
@@ -74,9 +77,9 @@ if __name__ =='__main__' :
                     
         #todo:
         '''
-        1 .압력센서 디버깅
-        2. dstatics update
-        3. led
+        1 .압력센서 디버깅   [v]
+        2. dstatics update  [ ]
+        3. led              [v]
         
         
         @. app nfc 1회 버그 고치기
