@@ -35,6 +35,8 @@ class StockChecker :
     
     def writeDeviceInfoFromLocal(self) :
         self.db.setDeviceInfo(self.deviceInfo)
+        stk =  self.deviceInfo.stock
+        # print(f"write device info :  {stk[0]}, {stk[1]}, {stk[2]}")
         
     def writeUserStaticsFromLoacl(self):
         self.db.setUserStatics(self.user)
@@ -61,16 +63,12 @@ class StockChecker :
 
 if __name__ =='__main__' : 
 
-    # db =  DBManager()
     device = StockChecker(deviceSerialNumber)        
     led = Led(26)                               #led
     press = Pressure(RECENT_SERIAL)             #압력센서
-    
-    # device.updateDeviceInfo(db)
-    # device.calibrate()
 
-    limit = 0.33 #무게 신뢰오차
-    user : DS.PersonalStatics = None #user personal statics
+    limit = 0.33                                #무게 신뢰오차
+    user : DS.PersonalStatics = None            #user personal statics
 
     while(True):
         device.getDeviceInfoFromDb()
@@ -91,8 +89,11 @@ if __name__ =='__main__' :
         for idx, lc in enumerate(device.loads) : 
             weight = device.deviceInfo.coffee[idx].weight
             desired = weight * device.deviceInfo.stock[idx]
+            print(f" [{idx}]desired : {desired}")
+            
             now = lc.readGrams_avg(times=8)
             print(f" num {idx} is  now : {now} g")
+            
             if(idx == 2 ):
                 print("-------"*30)
 
@@ -115,6 +116,7 @@ if __name__ =='__main__' :
         1 .압력센서 디버깅   [v]
         2. dstatics update  [v]
         3. led              [v]
+        4. 관바꿀때 캘리 안해도 되는지 테스트하기[]
         
         @. app nfc 1회 버그 고치기
         @@. app  nfc 모듈 동작 백그라운드화

@@ -144,9 +144,9 @@ class DBManager :
             '#1 Coffee': stock.coffee[0].name if stock.coffee[0] else None,
             '#2 Coffee': stock.coffee[1].name if stock.coffee[1] else None,
             '#3 Coffee': stock.coffee[2].name if stock.coffee[2] else None,
-            '#1 Coffee Stock': stock.stock[0],
-            '#2 Coffee Stock': stock.stock[1],
-            '#3 Coffee Stock': stock.stock[2],
+            '#1 Coffee Stock': stock.stock[0] if stock.stock[0] > 0  else 0,
+            '#2 Coffee Stock': stock.stock[1] if stock.stock[1] > 0  else 0,
+            '#3 Coffee Stock': stock.stock[2] if stock.stock[2] > 0  else 0,
         }
         
 
