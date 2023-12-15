@@ -161,7 +161,6 @@ class DBManager :
     def resetUsingId(self, stock : DS.Dispensor):
         # SerialNumber 컬렉션에서 해당 serialNumber의 문서 참조
         device_ref = self.__db.db_firebase.collection('SerialNumber').document(stock.serialNumber)
-
         # 업데이트할 데이터 준비
         update_data = {
             'UsingID' : '0'

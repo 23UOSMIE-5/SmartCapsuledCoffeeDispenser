@@ -19,11 +19,11 @@ class PersonalStatics:
     caloriesOfDay = 0
     caffeineOfDay = 0
 
-    def consumeCoffee(self, coffee : Coffee ) :
+    def consumeCoffee(self, coffee : Coffee, num : int = 1 ) :
         self.date =  datetime.datetime.now().strftime("%Y-%m-%d")
-        self.consumtionOfDay += 1
-        self.caloriesOfDay += coffee.calories
-        self.caffeineOfDay += coffee.caffeine
+        self.consumtionOfDay += num
+        self.caloriesOfDay += coffee.calories * num
+        self.caffeineOfDay += coffee.caffeine * num
 
 
 class Dispensor :

@@ -39,7 +39,7 @@ class StockChecker :
     
     def writeDeviceInfoFromLocal(self) :
         self.db.setDeviceInfo(self.deviceInfo)
-        stk =  self.deviceInfo.stock
+        # stk =  self.deviceInfo.stock
         # print(f"write device info :  {stk[0]}, {stk[1]}, {stk[2]}")
         
     def writeUserStaticsFromLoacl(self):
@@ -49,15 +49,14 @@ class StockChecker :
     
     def consumeCoffee(self, deltastock : list ) :
         for i in range(len(self.loads)): #line 수만큼
-            self.deviceInfo.stock[i] -= deltaStock[i]
-            print(f"after stock : {self.deviceInfo.stock[i]}")
-            if(self.user != None):
-                self.user.consumeCoffee(self.deviceInfo.coffee[i])
-                
+            if(self.user != None and self.user.id != '0'):
+                print(f"uset static consumtion : {deltastock[i]}")
+                self.user.consumeCoffee(self.deviceInfo.coffee[i], num = deltastock[i])
+           
         self.writeDeviceInfoFromLocal()
-        if(self.user != None):
+        if(self.user != None and self.user.id != '0' ):
+            print(f"write user statics to [{self.user.id}]")
             self.writeUserStaticsFromLoacl()
-            self.db.resetUsingId(self.deviceInfo)
       
     def calibrate(self):
         idx = 0
@@ -73,7 +72,7 @@ if __name__ =='__main__' :
     led = Led(26)                               #led
     press = Pressure(RECENT_SERIAL)             #압력센서
 
-    limit = 0.50                               #무게 신뢰오차
+    # limit = 0.50                               #무게 신뢰오차
     user : DS.PersonalStatics = None            #user personal statics
 
     while(True):
@@ -86,8 +85,8 @@ if __name__ =='__main__' :
             device.isUser = int(press.readline()) > 0
             print(f"isUser : {device.isUser}")
            
-            #for debug
-            device.user.id = "mylandy2"
+            # #for debug
+            # device.user.id = "mylandy2"
         except:
             device.isUser = False
         led.turnFromData(device.isUser)
@@ -95,10 +94,11 @@ if __name__ =='__main__' :
         if(device.isUser):
             device.getUserStaticsFromDb()
             
+        isStockChanged = False
         for idx, lc in enumerate(device.loads) : 
             weight = device.deviceInfo.coffee[idx].weight
     
-            now = lc.readGrams_avg(times=16)
+            now = lc.readGrams_avg(times=8)
             print(f" num {idx} is  now : {now} g")
             
            
@@ -109,18 +109,24 @@ if __name__ =='__main__' :
             device.deviceInfo.stock[idx] = exp_stock
             
             delta = prestock - exp_stock  
-            if(delta >0) : 
+            print(f"delta : {delta}")
+            
+            #재고변화
+            if(delta != 0):
+                isStockChanged =True
+            #커피소비
+            if(delta >0) :  
                 deltaStock[idx] = delta
-        
+
             if(idx == 2 ):
                 print("-------"*30)
 
 
         #[비유저 모드 혹은 유저모드 이용 끝] + [재고변화] =  db write
-        if ( device.isUser != True) :  
+        if ( device.isUser != True and isStockChanged > 0) :  
             print(f"write db")
             device.consumeCoffee(deltaStock)
-            # device.isUser = False
+            device.db.resetUsingId(device.deviceInfo)
         
                     
         #todo:
