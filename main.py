@@ -45,6 +45,8 @@ class StockChecker :
     def writeUserStaticsFromLoacl(self):
         self.db.setUserStatics(self.user)
         #consume and write db
+        
+    
     def consumeCoffee(self, deltastock : list ) :
         for i in range(len(self.loads)): #line 수만큼
             self.deviceInfo.stock[i] -= deltaStock[i]
@@ -78,7 +80,7 @@ if __name__ =='__main__' :
         device.getDeviceInfoFromDb()
         
         deltaStock = [0 ,0, 0]  #재고변화량
-        isStockChanged = False  #재고변화 존재여부
+        # isStockChanged = False  #재고변화 존재여부
         
         try :
             device.isUser = int(press.readline()) > 0
@@ -92,35 +94,30 @@ if __name__ =='__main__' :
         
         if(device.isUser):
             device.getUserStaticsFromDb()
-            #user = db.getPersonalStatics(deviceSerialNumber) #if no one using it, return none
             
         for idx, lc in enumerate(device.loads) : 
             weight = device.deviceInfo.coffee[idx].weight
-            desired = weight * device.deviceInfo.stock[idx]
-            print(f" [{idx}]desired : {desired}")
-            
+    
             now = lc.readGrams_avg(times=16)
             print(f" num {idx} is  now : {now} g")
             
            
-            delta =  ((desired) - now)
-            print(f"delta : {delta}")
+            exp_stock = int(round(now/float(weight))) #로드셀 기준 재고량
+            print(f"exp : {exp_stock}")
+            #todo: 로드셀 재고량 기준으로 디바이스 인포 덮어씌우기 및 만약 delt량 계산해서 소비량 계산까지
+            prestock = device.deviceInfo.stock[idx]
+            device.deviceInfo.stock[idx] = exp_stock
             
-            
-            exp_amount = int(round(now/float(weight)))
-
-            if( delta > weight * limit ) :
-                #limit 
-                deltaStock[idx] +=  int( round(delta / float(weight),0) )
-                isStockChanged = True
-                print(f"num : {idx} dleta amount : {int( delta / weight)}")
-                
+            delta = prestock - exp_stock  
+            if(delta >0) : 
+                deltaStock[idx] = delta
+        
             if(idx == 2 ):
                 print("-------"*30)
 
 
         #[비유저 모드 혹은 유저모드 이용 끝] + [재고변화] =  db write
-        if ( device.isUser != True and isStockChanged) :  
+        if ( device.isUser != True) :  
             print(f"write db")
             device.consumeCoffee(deltaStock)
             # device.isUser = False
