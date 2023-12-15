@@ -119,6 +119,8 @@ class DBManager :
     
     def setUserStatics(self, statics : DS.PersonalStatics):
         # UserStatics 컬렉션에서 해당 ID의 문서 참조
+        if (statics.id == '0') :
+            return
         user_stats_ref = self.__db.db_firebase.collection('UserStatics').document(statics.id)
 
         # 해당 날짜의 DailyStatics 문서 참조
@@ -167,8 +169,7 @@ class DBManager :
         
         # Firestore 문서 업데이트
         device_ref.set(update_data, merge=True)
-        print(update_data)
-        print("data update !")
+        print(f"reset using id : {update_data}")
         pass
 
 

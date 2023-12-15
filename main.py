@@ -19,6 +19,8 @@ class StockChecker :
     deviceInfo : DS.Dispensor = None
     user : DS.PersonalStatics = None
     
+    isUser = False
+    
     db = DBManager()
     
     def __init__(self, serialNumber):
@@ -27,8 +29,10 @@ class StockChecker :
         self.getUserStaticsFromDb()
         self.calibrate()
         
+        #get deviceinfo and userstatics
     def getDeviceInfoFromDb(self) :
-        self.deviceInfo =  self.db.getDeviceStock(deviceSerialNumber)
+        self.deviceInfo =  self.db.getDeviceStock(self.serialNumber)
+        self.user = self.db.getPersonalStatics(self.serialNumber)
         
     def getUserStaticsFromDb(self) : 
         self.user = self.db.getPersonalStatics(self.serialNumber)
@@ -40,7 +44,7 @@ class StockChecker :
         
     def writeUserStaticsFromLoacl(self):
         self.db.setUserStatics(self.user)
-        
+        #consume and write db
     def consumeCoffee(self, deltastock : list ) :
         for i in range(len(self.loads)): #line 수만큼
             self.deviceInfo.stock[i] -= deltaStock[i]
@@ -67,7 +71,7 @@ if __name__ =='__main__' :
     led = Led(26)                               #led
     press = Pressure(RECENT_SERIAL)             #압력센서
 
-    limit = 0.33                                #무게 신뢰오차
+    limit = 0.50                               #무게 신뢰오차
     user : DS.PersonalStatics = None            #user personal statics
 
     while(True):
@@ -77,12 +81,16 @@ if __name__ =='__main__' :
         isStockChanged = False  #재고변화 존재여부
         
         try :
-            isUser = int(press.readline()) > 0
+            device.isUser = int(press.readline()) > 0
+            print(f"isUser : {device.isUser}")
+           
+            #for debug
+            device.user.id = "mylandy2"
         except:
-            isUser = 0
-        led.turnFromData(isUser)
+            device.isUser = False
+        led.turnFromData(device.isUser)
         
-        if(isUser):
+        if(device.isUser):
             device.getUserStaticsFromDb()
             #user = db.getPersonalStatics(deviceSerialNumber) #if no one using it, return none
             
@@ -91,24 +99,31 @@ if __name__ =='__main__' :
             desired = weight * device.deviceInfo.stock[idx]
             print(f" [{idx}]desired : {desired}")
             
-            now = lc.readGrams_avg(times=8)
+            now = lc.readGrams_avg(times=16)
             print(f" num {idx} is  now : {now} g")
             
-            if(idx == 2 ):
-                print("-------"*30)
-
-            delta =  abs(float(desired) - now)
+           
+            delta =  ((desired) - now)
+            print(f"delta : {delta}")
+            
+            
+            exp_amount = int(round(now/float(weight)))
 
             if( delta > weight * limit ) :
                 #limit 
-                deltaStock[idx] +=  int( delta / weight )
+                deltaStock[idx] +=  int( round(delta / float(weight),0) )
                 isStockChanged = True
                 print(f"num : {idx} dleta amount : {int( delta / weight)}")
+                
+            if(idx == 2 ):
+                print("-------"*30)
+
 
         #[비유저 모드 혹은 유저모드 이용 끝] + [재고변화] =  db write
-        if ( isUser != True and isStockChanged) :  
+        if ( device.isUser != True and isStockChanged) :  
+            print(f"write db")
             device.consumeCoffee(deltaStock)
-            device.getUserStaticsFromDb()
+            # device.isUser = False
         
                     
         #todo:

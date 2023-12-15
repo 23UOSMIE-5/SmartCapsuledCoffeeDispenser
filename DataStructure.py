@@ -13,7 +13,7 @@ class CoffeeSet:
         for i in args:
             self.coffeeSet.append(i)
 class PersonalStatics:
-    id = None
+    id = "mylandy2"  #for debug
     date = None
     consumtionOfDay = 0
     caloriesOfDay = 0
