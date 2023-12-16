@@ -22,7 +22,6 @@ import android.provider.Settings
 import android.util.Log
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.firestore.FirebaseFirestore
-import tae.aop.part2.nfc.record.ParsedNdefRecord
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -135,13 +134,6 @@ class MainActivity : AppCompatActivity() {
                 messages.add(msg)
 
             }
-
-            // Setup the views
-            buildTagViews(messages)
-
-
-
-
         }
     }
 
@@ -265,28 +257,6 @@ class MainActivity : AppCompatActivity() {
             factor *= 256L
         }
         return result
-    }
-
-    private fun buildTagViews(msgs: List<NdefMessage>) {
-        if (msgs.isEmpty()) {
-            return
-        }
-        val inflater = LayoutInflater.from(this)
-        val content = tagList
-
-        // Parse the first message in the list
-        // Build views for all of the sub records
-        val now = Date()
-        val records = NdefMessageParser.parse(msgs[0])
-        val size = records.size
-        for (i in 0 until size) {
-            val timeView = TextView(this)
-            timeView.text = TIME_FORMAT.format(now)
-            content!!.addView(timeView, 0)
-            val record: ParsedNdefRecord = records[i]
-            content.addView(record.getView(this, inflater, content, i), 1 + i)
-            content.addView(inflater.inflate(R.layout.tag_divider, content, false), 2 + i)
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
