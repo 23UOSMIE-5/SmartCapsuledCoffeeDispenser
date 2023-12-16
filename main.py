@@ -11,7 +11,7 @@ deviceSerialNumber = '360464004024' + '51229'
 
 class StockChecker :
     
-    loads = [Loadcell(17,21,gain=128,grad=3749.812,offset=8260639.978), 
+    loads = [Loadcell(21,17,gain=128,grad=3749.812,offset=8260639.978), 
                 Loadcell(20,27,gain=128,grad=4719.77,offset=8700255.42),
                 Loadcell(16,22,gain=128,grad=3770.89,offset=8786543.75) ]
     serialNumber : str  = None
