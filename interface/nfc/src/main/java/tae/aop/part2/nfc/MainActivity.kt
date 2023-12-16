@@ -138,11 +138,10 @@ class MainActivity : AppCompatActivity() {
 
             // Setup the views
             buildTagViews(messages)
-            var db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-            var usingId:String = "mylandy2" // TODO 회원가입 기능 추가 후 해당하는 ID 갱신하도록 수정
 
-            db.collection("SerialNumber").document(IDdecString).update("UsingID", usingId)
+
+
         }
     }
 
@@ -161,6 +160,13 @@ class MainActivity : AppCompatActivity() {
         returnIntent.putExtra("DispenserID", IDdecString)
         returnIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         setResult(Activity.RESULT_OK, returnIntent)
+
+        var db: FirebaseFirestore = FirebaseFirestore.getInstance()
+
+        var usingId:String = "mylandy2" // TODO 회원가입 기능 추가 후 해당하는 ID 갱신하도록 수정
+        db.collection("SerialNumber").document(IDdecString).update("UsingID", usingId)
+        Log.d("firebasesuccess", "usingid update: $usingId")
+
         finish() // NFC 모듈 액티비티 종료
     }
 
